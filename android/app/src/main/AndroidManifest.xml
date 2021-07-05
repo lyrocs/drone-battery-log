@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.drone_battery_log">
    <application
-        android:label="drone_battery_log"
+        android:label="Drone Battery Log"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

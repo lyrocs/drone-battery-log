@@ -12,6 +12,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import '../../main.dart';
 import '../menu.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class BatteryListPage extends StatefulWidget {
   @override
@@ -80,9 +82,9 @@ class _NoteListState extends State<BatteryListPage> {
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                        Text('No batteries found'),
+                        Text(AppLocalizations.of(context)!.noBatteryFound),
                         Padding(padding: EdgeInsets.only(top: 20)),
-                        Text('Click on + to add new battery')
+                        Text(AppLocalizations.of(context)!.clickToAddBattery)
                       ]));
                 }
 
@@ -95,7 +97,6 @@ class _NoteListState extends State<BatteryListPage> {
           batteryBloc.initEmptyBattery();
           Navigator.pushNamed(context, '/battery/form');
         },
-        tooltip: 'Add score',
         child: const Icon(Icons.add),
         backgroundColor: Colors.green,
       ),
@@ -189,7 +190,8 @@ class _NoteListState extends State<BatteryListPage> {
                                   child: Text('${aBattery.brand}',
                                       style: Theme.of(context)
                                           .textTheme
-                                          .headline2)),
+                                          .headline2)
+                              ),
                               Padding(
                                   padding: EdgeInsets.only(left: 10),
                                   child: Text(
@@ -219,7 +221,7 @@ class _NoteListState extends State<BatteryListPage> {
                           // Cycles
                           Visibility(
                               visible: aBattery.cycle != null,
-                              child: Text('${aBattery.cycle} cycles',
+                              child: Text('${aBattery.cycle} ${AppLocalizations.of(context)!.cycles}',
                                   style:
                                       Theme.of(context).textTheme.headline2)),
                           // Lastlogupdate
@@ -270,20 +272,18 @@ class _NoteListState extends State<BatteryListPage> {
           aBattery.lastLogUpdate!.microsecondsSinceEpoch);
       if (today.difference(lastLogUpdate).inDays > 0) {
         lastLogUpdateText =
-            '${today.difference(lastLogUpdate).inDays.toString()} days';
+            '${today.difference(lastLogUpdate).inDays.toString()} ${AppLocalizations.of(context)!.days}';
       } else if (today.difference(lastLogUpdate).inHours > 0) {
         lastLogUpdateText =
-            '${today.difference(lastLogUpdate).inHours.toString()} hours';
+            '${today.difference(lastLogUpdate).inHours.toString()} ${AppLocalizations.of(context)!.hours}';
       } else if (today.difference(lastLogUpdate).inMinutes > 0) {
         lastLogUpdateText =
-            '${today.difference(lastLogUpdate).inMinutes.toString()} minutes';
+            '${today.difference(lastLogUpdate).inMinutes.toString()} ${AppLocalizations.of(context)!.minutes}';
       } else {
-        lastLogUpdateText = 'now';
+        lastLogUpdateText = AppLocalizations.of(context)!.now;
       }
     }
     return Text(lastLogUpdateText,
         style: Theme.of(context).textTheme.headline2);
   }
 }
-
-//123 - ( 123 / ( 1 + ((4.2/3.7)^80))^ 0.165)

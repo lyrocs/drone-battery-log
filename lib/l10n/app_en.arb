@@ -1,0 +1,66 @@
+{
+  "@@locale": "en",
+  "now": "now",
+  "minutes": "minutes",
+  "hours": "hours",
+  "days": "days",
+  "cycles": "cycles",
+  "noBatteryFound": "No batteries found",
+  "clickToAddBattery": "Click on + to add battery",
+  "lastModifications": "Last modifications:",
+  "charge": "Charge",
+  "discharge": "Discharge",
+  "stock": "Stock",
+  "clone": "Clone",
+  "edit": "Edit",
+  "delete": "Delete",
+  "lastUpdateDays": "{number} days ago",
+  "@lastUpdateDays": {
+    "placeholders": {
+      "number": {
+        "type": "String",
+        "example": "42"
+      }
+    }
+  },
+  "lastUpdateHours": "{number} hours ago",
+  "@lastUpdateHours": {
+    "placeholders": {
+      "number": {
+        "type": "String",
+        "example": "42"
+      }
+    }
+  },
+  "lastUpdateMinutes": "{number} minutes ago",
+  "@lastUpdateMinutes": {
+    "placeholders": {
+      "number": {
+        "type": "String",
+        "example": "42"
+      }
+    }
+  },
+  "tagLabel": "Tag",
+  "brandLabel": "Brand",
+  "cellsLabel": "Cells (s)",
+  "capacityLabel": "Capacity (mAh)",
+  "cycleLabel": "Cycle",
+  "submit": "Submit",
+  "selectVoltage": "Select voltage",
+  "percent": "Percent",
+  "voltage": "Voltage",
+  "volts": "Volts",
+  "missingValue": "Please insert value",
+  "myBatteries": "My batteries",
+  "login": "Login",
+  "email": "Email",
+  "password": "Password",
+  "createAccount": "Create an account",
+  "signup": "Sign up",
+
+  "helloWorld": "Hello World!",
+  "@helloWorld": {
+    "description": "The conventional newborn programmer greeting"
+  }
+}

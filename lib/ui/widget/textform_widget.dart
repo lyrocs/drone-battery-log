@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class MyTextField extends StatelessWidget {
   final TextInputType textInputType;
@@ -45,7 +47,7 @@ class MyTextField extends StatelessWidget {
       onChanged: onChange,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter value';
+          return AppLocalizations.of(context)!.missingValue;
         }
         return null;
       },

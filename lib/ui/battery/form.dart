@@ -2,6 +2,8 @@ import 'package:drone_battery_log/bloc/battery.bloc.dart';
 import 'package:drone_battery_log/model/battery.model.dart';
 import 'package:drone_battery_log/ui/widget/textform_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class BatteryFormPage extends StatefulWidget {
   @override
@@ -61,11 +63,11 @@ class _NoteListState extends State<BatteryFormPage> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    MyTextField(label: 'Tag',controller:  tagController,textInputType:  TextInputType.text, placeholder: '', onChange: (value) {}),
-                    MyTextField(label: 'Brand',controller: brandController,textInputType:  TextInputType.text,placeholder:  '', onChange: (value) {}),
-                    MyTextField(label: 'Cells (S)',controller:  cellsController,textInputType:  TextInputType.number,placeholder:  '', onChange: (value) {}),
-                    MyTextField(label: 'Capacity (mAh)',controller:  capacityController,textInputType:  TextInputType.number,placeholder:  '', onChange: (value) {}),
-                    MyTextField(label: 'Cycle', controller: cycleController,textInputType:  TextInputType.number,placeholder:  '', onChange: (value) {}),
+                    MyTextField(label: AppLocalizations.of(context)!.tagLabel ,controller:  tagController,textInputType:  TextInputType.text, placeholder: '', onChange: (value) {}),
+                    MyTextField(label: AppLocalizations.of(context)!.brandLabel ,controller: brandController,textInputType:  TextInputType.text,placeholder:  '', onChange: (value) {}),
+                    MyTextField(label: AppLocalizations.of(context)!.cellsLabel ,controller:  cellsController,textInputType:  TextInputType.number,placeholder:  '', onChange: (value) {}),
+                    MyTextField(label: AppLocalizations.of(context)!.capacityLabel ,controller:  capacityController,textInputType:  TextInputType.number,placeholder:  '', onChange: (value) {}),
+                    MyTextField(label: AppLocalizations.of(context)!.cycleLabel , controller: cycleController,textInputType:  TextInputType.number,placeholder:  '', onChange: (value) {}),
                     ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {

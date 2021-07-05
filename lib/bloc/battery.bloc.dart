@@ -4,28 +4,40 @@ import 'package:drone_battery_log/model/battery.model.dart';
 import 'package:drone_battery_log/model/log.model.dart';
 
 class BatteryBloc {
+  final batteriesCollection = FirebaseFirestore.instance
+      .collection('batteries')
+      .withConverter<Battery>(
+          fromFirestore: (snapshot, _) =>
+              Battery.fromJson(snapshot.id, snapshot.data()!),
+          toFirestore: (battery, _) => battery.toJson());
 
-  final batteriesCollection = FirebaseFirestore.instance.collection('batteries').withConverter<Battery>(
-      fromFirestore: (snapshot, _) => Battery.fromJson(snapshot.id, snapshot.data()!),
-      toFirestore: (battery, _) => battery.toJson());
-
-  final logsCollection = FirebaseFirestore.instance.collection('logs').withConverter<Log>(
-      fromFirestore: (snapshot, _) => Log.fromJson(snapshot.id, snapshot.data()!),
-      toFirestore: (log, _) => log.toJson());
+  final logsCollection = FirebaseFirestore.instance
+      .collection('logs')
+      .withConverter<Log>(
+          fromFirestore: (snapshot, _) =>
+              Log.fromJson(snapshot.id, snapshot.data()!),
+          toFirestore: (log, _) => log.toJson());
 
   Battery? currentBattery;
 
   getBatteriesSnapshot() {
-    return batteriesCollection.where('userID', isEqualTo: userBloc.userID).snapshots();
+    return batteriesCollection
+        .where('userID', isEqualTo: userBloc.userID)
+        .snapshots();
   }
 
   getBatterySnapshot(batteryId) {
-    return batteriesCollection.where(FieldPath.documentId, isEqualTo: batteryId).where('userID', isEqualTo: userBloc.userID).snapshots();
+    return batteriesCollection
+        .where(FieldPath.documentId, isEqualTo: batteryId)
+        .where('userID', isEqualTo: userBloc.userID)
+        .snapshots();
   }
 
-
   getById(batteryId) async {
-    Battery batteryRequest = await batteriesCollection.doc(batteryId).get().then((snapshot) => snapshot.data()!);
+    Battery batteryRequest = await batteriesCollection
+        .doc(batteryId)
+        .get()
+        .then((snapshot) => snapshot.data()!);
     currentBattery = batteryRequest;
     print(currentBattery!.toJson());
   }
@@ -46,10 +58,18 @@ class BatteryBloc {
   newLogEvent(batteryId, double volts, double percent) async {
     print(volts);
     print(percent);
-    Battery batteryRequest = await batteriesCollection.doc(batteryId).get().then((snapshot) => snapshot.data()!);
+    Battery batteryRequest = await batteriesCollection
+        .doc(batteryId)
+        .get()
+        .then((snapshot) => snapshot.data()!);
 
     Timestamp lastLogUpdate = Timestamp.fromDate(DateTime.now());
-    Log newLog = new Log(userID: userBloc.userID, batteryId: batteryId, percent: percent, volts: volts, date: lastLogUpdate);
+    Log newLog = new Log(
+        userID: userBloc.userID,
+        batteryId: batteryId,
+        percent: percent,
+        volts: volts,
+        date: lastLogUpdate);
     print(newLog.toJson());
     await logsCollection.add(newLog);
 
@@ -57,7 +77,7 @@ class BatteryBloc {
       'volts': volts,
       'percent': percent,
       'lastLogUpdate': lastLogUpdate,
-      'cycle': percent > 90 ? batteryRequest.cycle! +1 : batteryRequest.cycle!
+      'cycle': percent > 90 ? batteryRequest.cycle! + 1 : batteryRequest.cycle!
     });
     await getById(batteryId);
   }
@@ -65,12 +85,14 @@ class BatteryBloc {
   getBatteryLogsSnapshot(batteryId) {
     // return logsCollection.snapshots();
 
-    return logsCollection.where('userID', isEqualTo: userBloc.userID).where('batteryId', isEqualTo: batteryId).orderBy('date', descending: true).snapshots();
+    return logsCollection
+        .where('userID', isEqualTo: userBloc.userID)
+        .where('batteryId', isEqualTo: batteryId)
+        .orderBy('date', descending: true)
+        .snapshots();
   }
 
-
   upsert() async {
-
     if (currentBattery == null) {
       return;
     }
@@ -81,37 +103,20 @@ class BatteryBloc {
     } else {
       await batteriesCollection.add(currentBattery!);
     }
-
-
-
-    // var notesRequest = await notesCollection
-    //     .where('token', isEqualTo: userBloc.currentUser.token)
-    //     .where('date', isEqualTo: cursorDate)
-    //     .get();
-    // if (notesRequest.size != 0) {
-    // await notesCollection
-    //     .doc(notesRequest.docs.first.id)
-    //     .update({'text': currentNote.text});
-    // } else {
-    // await notesCollection.add({
-    // 'token': userBloc.currentUser.token,
-    // 'text': currentNote.text,
-    // 'date': cursorDate,
-    // 'isRead': false,
-    // });
-    // }
-
   }
 
   deleteBattery(batteryId) async {
     await batteriesCollection.doc(batteryId).delete();
-    await logsCollection.where('userID', isEqualTo: userBloc.userID).where('batteryId', isEqualTo: batteryId).get().then((snapshot) {
+    await logsCollection
+        .where('userID', isEqualTo: userBloc.userID)
+        .where('batteryId', isEqualTo: batteryId)
+        .get()
+        .then((snapshot) {
       snapshot.docs.forEach((element) {
         logsCollection.doc(element.id).delete();
       });
     });
   }
 }
-
 
 final batteryBloc = new BatteryBloc();

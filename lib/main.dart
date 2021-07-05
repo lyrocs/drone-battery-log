@@ -6,6 +6,8 @@ import 'package:drone_battery_log/ui/battery/form.dart';
 import 'package:drone_battery_log/ui/battery/log.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,19 +26,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Drone Battery Log',
+      supportedLocales: [
+        Locale("fr", ""),
+        Locale("es", ""),
+        Locale("en", ""),
+      ],
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
-
       ),
       darkTheme: ThemeData(
         textTheme: TextTheme(
@@ -57,25 +60,6 @@ class MyApp extends StatelessWidget {
         '/battery/form': (context) => BatteryFormPage(),
         '/battery/log': (context) => BatteryLogPage(),
       },
-    // onGenerateRoute: (settings) {
-    //   // If you push the PassArguments route
-    //   if (settings.name == '/battery/log') {
-    //     // Cast the arguments to the correct
-    //     // type: ScreenArguments.
-    //     final args = settings.arguments as RoutesArguments;
-    //
-    //     // Then, extract the required data from
-    //     // the arguments and pass the data to the
-    //     // correct screen.
-    //     return MaterialPageRoute(
-    //       builder: (context) {
-    //         return BatteryLogPage(
-    //           id: args.id,
-    //         );
-    //       },
-    //     );
-    //   }
-    // }
     );
   }
 }
