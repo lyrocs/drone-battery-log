@@ -1,121 +1,114 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:drone_battery_log/bloc/user.bloc.dart';
+import 'dart:math';
+
 import 'package:drone_battery_log/model/battery.model.dart';
 import 'package:drone_battery_log/model/log.model.dart';
+import 'package:hive/hive.dart';
+import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
-class BatteryBloc {
-  final batteriesCollection = FirebaseFirestore.instance
-      .collection('batteries')
-      .withConverter<Battery>(
-          fromFirestore: (snapshot, _) =>
-              Battery.fromJson(snapshot.id, snapshot.data()!),
-          toFirestore: (battery, _) => battery.toJson());
+class BatteryBloc extends ChangeNotifier {
 
-  final logsCollection = FirebaseFirestore.instance
-      .collection('logs')
-      .withConverter<Log>(
-          fromFirestore: (snapshot, _) =>
-              Log.fromJson(snapshot.id, snapshot.data()!),
-          toFirestore: (log, _) => log.toJson());
+  Box? batteryBox;
+  List<Battery> get batteries => batteryBox!.values.toList().cast();
+  Battery? get battery => batteryBox!.values.firstWhereOrNull((element) => element.id == currentBatteryId!);
+  String? currentBatteryId;
+  Battery? tempBattery;
 
-  Battery? currentBattery;
+  Box? logBox;
+  List<Log> get logs => logBox!.values.toList().cast();
+  List<Log> get batteryLogs => logBox!.values.where((element) => element.batteryId == currentBatteryId!).toList().cast();
 
-  getBatteriesSnapshot() {
-    return batteriesCollection
-        .where('userID', isEqualTo: userBloc.userID)
-        .snapshots();
-  }
+  String _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  Random _rnd = Random();
 
-  getBatterySnapshot(batteryId) {
-    return batteriesCollection
-        .where(FieldPath.documentId, isEqualTo: batteryId)
-        .where('userID', isEqualTo: userBloc.userID)
-        .snapshots();
-  }
+  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
-  getById(batteryId) async {
-    Battery batteryRequest = await batteriesCollection
-        .doc(batteryId)
-        .get()
-        .then((snapshot) => snapshot.data()!);
-    currentBattery = batteryRequest;
-    print(currentBattery!.toJson());
+  init() async {
+    batteryBox = await Hive.openBox<Battery>('batteriesBox');
+    logBox = await Hive.openBox<Log>('logsBox');
+
+    // Clear all local data
+    // logBox!.deleteFromDisk();
+    // batteryBox!.deleteFromDisk();
+    // logBox!.clear();
+    // batteryBox!.clear();
+    // logBox!.close();
+    // batteryBox!.close();
+    // print('all closed');
   }
 
   clone(aBattery) async {
     initEmptyBattery();
-    currentBattery?.userID = userBloc.userID;
-    currentBattery?.brand = aBattery.brand;
-    currentBattery?.capacity = aBattery.capacity;
-    currentBattery?.cells = aBattery.cells;
-    currentBattery?.cycle = aBattery.cycle;
+    tempBattery?.brand = aBattery.brand;
+    tempBattery?.capacity = aBattery.capacity;
+    tempBattery?.cells = aBattery.cells;
+    tempBattery?.cycle = aBattery.cycle;
   }
 
   initEmptyBattery() {
-    currentBattery = new Battery(userID: userBloc.userID);
+    int updatedAt = DateTime.now().microsecondsSinceEpoch;
+    tempBattery = new Battery(updatedAt: updatedAt);
   }
 
-  newLogEvent(batteryId, double volts, double percent) async {
-    print(volts);
-    print(percent);
-    Battery batteryRequest = await batteriesCollection
-        .doc(batteryId)
-        .get()
-        .then((snapshot) => snapshot.data()!);
+  updateBattery(batteryId)  {
+    for (int i = 0; i < batteries.length; i++) {
+      if (batteries[i].id == batteryId) {
+        batteryBox!.putAt(i, tempBattery);
+        return;
+      }
+    }
+  }
 
-    Timestamp lastLogUpdate = Timestamp.fromDate(DateTime.now());
+  createLog(batteryId, double volts, double percent) async {
+    int lastLogUpdate = DateTime.now().microsecondsSinceEpoch;
+    currentBatteryId = batteryId;
+
+    tempBattery = battery;
+    tempBattery!.volts = volts;
+    tempBattery!.percent = percent;
+    tempBattery!.lastLogUpdate = lastLogUpdate;
+    tempBattery!.cycle = percent > 90 ? battery!.cycle! + 1 : battery!.cycle!;
+    tempBattery!.updatedAt = lastLogUpdate;
+    updateBattery(batteryId);
+
     Log newLog = new Log(
-        userID: userBloc.userID,
+        id: getRandomString(10),
+        userID: null,
         batteryId: batteryId,
         percent: percent,
         volts: volts,
-        date: lastLogUpdate);
-    print(newLog.toJson());
-    await logsCollection.add(newLog);
-
-    await batteriesCollection.doc(batteryId).update({
-      'volts': volts,
-      'percent': percent,
-      'lastLogUpdate': lastLogUpdate,
-      'cycle': percent > 90 ? batteryRequest.cycle! + 1 : batteryRequest.cycle!
-    });
-    await getById(batteryId);
-  }
-
-  getBatteryLogsSnapshot(batteryId) {
-    // return logsCollection.snapshots();
-
-    return logsCollection
-        .where('userID', isEqualTo: userBloc.userID)
-        .where('batteryId', isEqualTo: batteryId)
-        .orderBy('date', descending: true)
-        .snapshots();
+        date: lastLogUpdate,
+    updatedAt: lastLogUpdate);
+    await logBox!.add(newLog);
+    notifyListeners();
   }
 
   upsert() async {
-    if (currentBattery == null) {
+    if (tempBattery == null) {
       return;
     }
-    if (currentBattery!.id != null) {
-      await batteriesCollection
-          .doc(currentBattery!.id)
-          .update(currentBattery!.toJson());
+    if (tempBattery!.id == null) {
+      tempBattery!.id = getRandomString(10);
+      batteryBox!.add(tempBattery);
     } else {
-      await batteriesCollection.add(currentBattery!);
+      updateBattery(tempBattery!.id);
     }
+    notifyListeners();
   }
 
-  deleteBattery(batteryId) async {
-    await batteriesCollection.doc(batteryId).delete();
-    await logsCollection
-        .where('userID', isEqualTo: userBloc.userID)
-        .where('batteryId', isEqualTo: batteryId)
-        .get()
-        .then((snapshot) {
-      snapshot.docs.forEach((element) {
-        logsCollection.doc(element.id).delete();
-      });
-    });
+  deleteBattery(batteryId) {
+    for (int i = 0; i < logs.length; i++) {
+      if (logs[i].batteryId == batteryId) {
+        logBox!.deleteAt(i);
+      }
+    }
+    for (int i = 0; i < batteries.length; i++) {
+      if (batteries[i].id == batteryId) {
+        batteryBox!.deleteAt(i);
+      }
+    }
+    notifyListeners();
   }
 }
 

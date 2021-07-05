@@ -1,23 +1,27 @@
+import 'package:drone_battery_log/bloc/battery.bloc.dart';
+import 'package:drone_battery_log/model/battery.model.dart';
+import 'package:drone_battery_log/model/log.model.dart';
 import 'package:drone_battery_log/ui/loading.dart';
-import 'package:drone_battery_log/ui/signin.dart';
-import 'package:drone_battery_log/ui/signup.dart';
 import 'package:drone_battery_log/ui/battery/list.dart';
 import 'package:drone_battery_log/ui/battery/form.dart';
 import 'package:drone_battery_log/ui/battery/log.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Hive.initFlutter();
+  Hive.registerAdapter(BatteryAdapter());
+  Hive.registerAdapter(LogAdapter());
+  await batteryBloc.init();
   runApp(MyApp());
 }
 
 class RoutesArguments {
   final String id;
-
   RoutesArguments(this.id);
 }
 
@@ -25,7 +29,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => batteryBloc),
+    ],
+    child:
+    MaterialApp(
       title: 'Drone Battery Log',
       supportedLocales: [
         Locale("fr", ""),
@@ -39,28 +48,31 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      darkTheme: ThemeData(
         textTheme: TextTheme(
-          headline1: TextStyle(fontSize: 10, fontFamily: 'Hind', color: Colors.white),
-          headline2: TextStyle(fontSize: 14, fontFamily: 'Hind', color: Colors.white),
-        ),
-        brightness: Brightness.dark,
-        /* dark theme settings */
+            headline1: TextStyle(fontSize: 10, fontFamily: 'Hind', color: Colors.white),
+            headline2: TextStyle(fontSize: 14, fontFamily: 'Hind', color: Colors.white),
+          ),
+        brightness: Brightness.dark
       ),
-      themeMode: ThemeMode.dark,
+      // darkTheme: ThemeData.dark(),
+      // darkTheme: ThemeData(
+      //   textTheme: TextTheme(
+      //     headline1: TextStyle(fontSize: 10, fontFamily: 'Hind', color: Colors.white),
+      //     headline2: TextStyle(fontSize: 14, fontFamily: 'Hind', color: Colors.white),
+      //   ),
+      //   brightness: Brightness.dark,
+      //   /* dark theme settings */
+      // ),
+
       home: MyHomePage(),
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{
         '/loading': (context) => LoadingPage(),
-        '/signin': (context) => SignInPage(),
-        '/signup': (context) => SignUpPage(),
         '/battery/list': (context) => BatteryListPage(),
         '/battery/form': (context) => BatteryFormPage(),
         '/battery/log': (context) => BatteryLogPage(),
       },
-    );
+    ));
   }
 }
 

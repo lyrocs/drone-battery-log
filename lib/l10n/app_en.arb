@@ -1,5 +1,6 @@
 {
   "@@locale": "en",
+
   "now": "now",
   "minutes": "minutes",
   "hours": "hours",
@@ -14,6 +15,24 @@
   "clone": "Clone",
   "edit": "Edit",
   "delete": "Delete",
+
+  "tagLabel": "Tag",
+  "brandLabel": "Brand",
+  "cellsLabel": "Cells (s)",
+  "capacityLabel": "Capacity (mAh)",
+  "cycleLabel": "Cycle",
+  "submit": "Submit",
+  "selectVoltage": "Select voltage",
+  "percent": "Percent",
+  "voltage": "Voltage",
+  "volts": "Volts",
+  "missingValue": "Please insert value",
+  "myBatteries": "My batteries",
+  "login": "Login",
+  "email": "Email",
+  "password": "Password",
+  "createAccount": "Create an account",
+  "signup": "Sign up",
   "lastUpdateDays": "{number} days ago",
   "@lastUpdateDays": {
     "placeholders": {
@@ -40,27 +59,5 @@
         "example": "42"
       }
     }
-  },
-  "tagLabel": "Tag",
-  "brandLabel": "Brand",
-  "cellsLabel": "Cells (s)",
-  "capacityLabel": "Capacity (mAh)",
-  "cycleLabel": "Cycle",
-  "submit": "Submit",
-  "selectVoltage": "Select voltage",
-  "percent": "Percent",
-  "voltage": "Voltage",
-  "volts": "Volts",
-  "missingValue": "Please insert value",
-  "myBatteries": "My batteries",
-  "login": "Login",
-  "email": "Email",
-  "password": "Password",
-  "createAccount": "Create an account",
-  "signup": "Sign up",
-
-  "helloWorld": "Hello World!",
-  "@helloWorld": {
-    "description": "The conventional newborn programmer greeting"
   }
 }

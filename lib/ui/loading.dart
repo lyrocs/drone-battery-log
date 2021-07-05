@@ -1,4 +1,3 @@
-import 'package:drone_battery_log/bloc/user.bloc.dart';
 import 'package:flutter/material.dart';
 
 class LoadingPage extends StatefulWidget {
@@ -10,36 +9,8 @@ class _LoadingPageState extends State<LoadingPage> {
   TextEditingController textController = TextEditingController();
 
   initValues() {
-
-    // Future.delayed(const Duration(seconds: 1), () => Navigator.pushNamed(context, '/signin'));
-    userBloc.reauthenticating().then((response) => {
-        if (response == true) {
-          Navigator.pushNamed(context, '/battery/list')
-        } else {
-          Navigator.pushNamed(context, '/signin')
-        }
-    }
-    );
-    // try {
-    //   // userBloc.reloging().then((response) {
-    //   //   if (response != false) {
-    //   //     if (userBloc.currentUser?.isWriter == true) {
-    //   //       Navigator.pushNamed(
-    //   //           context, '/writer/home');
-    //   //     } else {
-    //   //       Navigator.pushNamed(
-    //   //           context, '/reader/home');
-    //   //     }
-    //   //   } else {
-    //   //     Navigator.pushNamed(
-    //   //         context, '/signin');
-    //   //   }
-    //   // });
-    // } catch (e) {
-    //   // userBloc.logout();
-    //   // Navigator.pushNamed(
-    //   //     context, '/signin');
-    // }
+    // For future update : Login
+    Future.delayed(const Duration(seconds: 1), () => Navigator.pushNamed(context, '/battery/list'));
   }
 
   @override

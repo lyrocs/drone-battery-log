@@ -19,10 +19,10 @@ class _NoteListState extends State<BatteryFormPage> {
   TextEditingController cycleController = TextEditingController();
 
   initValues() {
-    if (batteryBloc.currentBattery == null) {
+    if (batteryBloc.tempBattery == null) {
       batteryBloc.initEmptyBattery();
     }
-    var currentBattery = batteryBloc.currentBattery!;
+    var currentBattery = batteryBloc.tempBattery!;
     tagController.text = currentBattery.tag != null ? currentBattery.tag.toString(): '';
     brandController.text = currentBattery.brand != null ? currentBattery.brand.toString(): '';
     capacityController.text =  currentBattery.capacity != null ? currentBattery.capacity.toString(): '';
@@ -45,7 +45,9 @@ class _NoteListState extends State<BatteryFormPage> {
         key: _key,
         backgroundColor: Color(0xff000000),
         appBar: AppBar(
-          title: Text('Drone battery log'),
+          toolbarHeight: 35,
+          title: Text('Drone battery log',
+              style: TextStyle(fontFamily: 'Bangers', fontSize: 30)),
           automaticallyImplyLeading: false,
           backgroundColor: Color(0xff000000),
           leading: IconButton(
@@ -71,11 +73,11 @@ class _NoteListState extends State<BatteryFormPage> {
                     ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            batteryBloc.currentBattery!.tag = tagController.text.toString();
-                            batteryBloc.currentBattery!.brand = brandController.text.toString();
-                            batteryBloc.currentBattery!.cells = int.parse(cellsController.text);
-                            batteryBloc.currentBattery!.capacity = int.parse(capacityController.text);
-                            batteryBloc.currentBattery!.cycle = int.parse(cycleController.text);
+                            batteryBloc.tempBattery!.tag = tagController.text.toString();
+                            batteryBloc.tempBattery!.brand = brandController.text.toString();
+                            batteryBloc.tempBattery!.cells = int.parse(cellsController.text);
+                            batteryBloc.tempBattery!.capacity = int.parse(capacityController.text);
+                            batteryBloc.tempBattery!.cycle = int.parse(cycleController.text);
                             await batteryBloc.upsert();
                             Navigator.pushNamed(context, '/battery/list');
                           }

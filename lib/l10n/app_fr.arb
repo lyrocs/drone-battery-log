@@ -1,5 +1,63 @@
 {
     "@@locale": "fr",
 
-    "helloWorld": "Bonjour le monde"
+    "now": "a l'instant",
+    "minutes": "minutes",
+    "hours": "heures",
+    "days": "jours",
+    "cycles": "cycles",
+    "noBatteryFound": "Aucune batterie trouvé",
+    "clickToAddBattery": "Clickez sur le + pour ajouter une batterie",
+    "lastModifications": "Dernières modifications:",
+    "charge": "Recharger",
+    "discharge": "Décharger",
+    "stock": "Stocker",
+    "clone": "Cloner",
+    "edit": "Editer",
+    "delete": "Supprimer",
+
+    "tagLabel": "Tag",
+    "brandLabel": "Marque",
+    "cellsLabel": "Cells (s)",
+    "capacityLabel": "Capacité (mAh)",
+    "cycleLabel": "Cycle",
+    "submit": "Enregistrer",
+    "selectVoltage": "Saisissez la tension",
+    "percent": "Pourcentage",
+    "voltage": "Volt",
+    "volts": "Volts",
+    "missingValue": "Le champ ne doit pas être vide",
+    "myBatteries": "Mes batteries",
+    "login": "Login",
+    "email": "Email",
+    "password": "Password",
+    "createAccount": "Creer un compte",
+    "signup": "S'enregistrer",
+    "lastUpdateDays": "il y a {number} jours",
+    "@lastUpdateDays": {
+        "placeholders": {
+            "number": {
+                "type": "String",
+                "example": "42"
+            }
+        }
+    },
+    "lastUpdateHours": "il y a {number} heures",
+    "@lastUpdateHours": {
+        "placeholders": {
+            "number": {
+                "type": "String",
+                "example": "42"
+            }
+        }
+    },
+    "lastUpdateMinutes": "il y a {number} minutes",
+    "@lastUpdateMinutes": {
+        "placeholders": {
+            "number": {
+                "type": "String",
+                "example": "42"
+            }
+        }
+    }
 }

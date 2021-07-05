@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drone_battery_log/bloc/battery.bloc.dart';
 import 'package:drone_battery_log/model/battery.model.dart';
 import 'package:drone_battery_log/model/log.model.dart';
@@ -6,13 +5,11 @@ import 'package:drone_battery_log/ui/widget/selectTension_widget.dart';
 import 'package:drone_battery_log/ui/widget/slidable_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../main.dart';
-import '../menu.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BatteryLogPage extends StatefulWidget {
-  // final String id;
-  // const BatteryLogPage({Key? key, required this.id}) : super(key: key);
 
   @override
   _BatteryLogPageState createState() => _BatteryLogPageState();
@@ -20,28 +17,23 @@ class BatteryLogPage extends StatefulWidget {
 
 class _BatteryLogPageState extends State<BatteryLogPage> {
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
-  // Battery aBattery = batteryBloc.currentBattery!;
+
 
   @override
   Widget build(BuildContext context) {
     RoutesArguments args =
         ModalRoute.of(context)!.settings.arguments as RoutesArguments;
-    return StreamBuilder(
-        stream: batteryBloc.getBatterySnapshot(args.id),
-        builder: (context, AsyncSnapshot<QuerySnapshot<Battery>> snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Something went wrong'));
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasData) {
-            return _buildLog(snapshot.data!.docs.first.data(), context);
-            return Text('Ok');
-          }
+    batteryBloc.currentBatteryId = args.id;
+      return Consumer<BatteryBloc>(
+          builder: (context, model, child) {
+            if (model.battery != null) {
+              return _buildLog(model.battery, context);
+            } else {
+              return Text('');
+            }
 
-          return Center(child: CircularProgressIndicator());
-        });
+          }
+      );
   }
 
   @override
@@ -61,6 +53,7 @@ class _BatteryLogPageState extends State<BatteryLogPage> {
       key: _key,
       backgroundColor: Color(0xff000000),
       appBar: AppBar(
+        toolbarHeight: 35,
         title: Text('Drone battery log',
             style: TextStyle(fontFamily: 'Bangers', fontSize: 30)),
         automaticallyImplyLeading: false,
@@ -73,7 +66,6 @@ class _BatteryLogPageState extends State<BatteryLogPage> {
         ),
         actions: [_selectPopup(aBattery)],
       ),
-      drawer: buildMenu(context),
       body: Column(
         children: [
           Padding(padding: EdgeInsets.all(5.0)),
@@ -124,21 +116,7 @@ class _BatteryLogPageState extends State<BatteryLogPage> {
               padding: EdgeInsets.only(top: 10, left: 10),
               child: Text(AppLocalizations.of(context)!.lastModifications)),
           Expanded(
-            child: StreamBuilder(
-                stream: batteryBloc.getBatteryLogsSnapshot(
-                    batteryBloc.currentBattery!.id.toString()),
-                builder: (context, AsyncSnapshot<QuerySnapshot<Log>> snapshot) {
-                  if (snapshot.hasError) {
-                    print(snapshot.error.toString());
-                    return Center(child: Text('No log'));
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-
-                  // return Text('OK');
-                  return _buildLogList(snapshot);
-                }),
+            child: _buildLogList(batteryBloc.batteryLogs),
           ),
         ],
       ),
@@ -176,39 +154,43 @@ class _BatteryLogPageState extends State<BatteryLogPage> {
           switch (value) {
             case 0:
               // double parse + toStringAsFixed fix 3*4.2 = 12.600000000000001
-              await batteryBloc.newLogEvent(
+              await batteryBloc.createLog(
                   aBattery.id,
                   double.parse((aBattery.cells! * 4.2).toStringAsFixed(2)),
                   100);
               break;
             case 1:
-              openModal(aBattery, context);
+              openModal(aBattery, false, context);
               break;
             case 2:
-              openModal(aBattery, context);
+              openModal(aBattery, true, context);
               break;
             case 3:
               await batteryBloc.clone(aBattery);
               Navigator.pushNamed(context, '/battery/form');
               break;
             case 4:
-              batteryBloc.currentBattery = aBattery;
+              batteryBloc.tempBattery = aBattery;
               Navigator.pushNamed(context, '/battery/form');
               break;
             case 5:
-              batteryBloc.deleteBattery(aBattery.id);
-              Navigator.pushNamed(context, '/battery/list');
+              setState(() {
+                batteryBloc.deleteBattery(aBattery.id);
+                Navigator.pushNamed(context, '/battery/list');
+              });
               break;
           }
-          setState(() {});
         },
         icon: Icon(Icons.more_vert),
       );
 
-  ListView _buildLogList(AsyncSnapshot<QuerySnapshot<Log>> snapshot) {
+  ListView _buildLogList(List<Log> snapshot) {
+    List<Log> logList = snapshot..sort((Log a, Log b) {
+      return b.date!.compareTo(a.date!);
+    });
     return new ListView(
-      children: snapshot.data!.docs.map((DocumentSnapshot<Log> document) {
-        Log aLog = document.data()!;
+      children: logList.map((Log document) {
+        Log aLog = document;
         var color = Colors.green;
         if (aLog.percent! < 20.0) {
           color = Colors.red;
@@ -248,7 +230,7 @@ class _BatteryLogPageState extends State<BatteryLogPage> {
     String lastLogUpdateText = '';
     if (aDate != null) {
       var lastLogUpdate =
-          DateTime.fromMicrosecondsSinceEpoch(aDate.microsecondsSinceEpoch);
+          DateTime.fromMicrosecondsSinceEpoch(aDate);
       if (today.difference(lastLogUpdate).inDays > 0) {
         lastLogUpdateText = AppLocalizations.of(context)!
             .lastUpdateDays(today.difference(lastLogUpdate).inDays.toString());
